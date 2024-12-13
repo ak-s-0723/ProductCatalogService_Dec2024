@@ -5,6 +5,8 @@ import org.example.productcatalogservice_dec2024.dtos.ProductDto;
 import org.example.productcatalogservice_dec2024.models.Product;
 import org.example.productcatalogservice_dec2024.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -29,9 +31,14 @@ public class ProductController {
 
 
     @GetMapping("{productId}")
-    public ProductDto findProductById(@PathVariable Long productId) {
+    public ResponseEntity<ProductDto> findProductById(@PathVariable Long productId) {
+        if(productId <= 0) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
       Product product = productService.getProductById(productId);
-      return from(product);
+      if(product == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(from(product),HttpStatus.OK);
     }
 
     private ProductDto from (Product product) {

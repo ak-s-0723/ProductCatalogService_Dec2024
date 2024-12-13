@@ -1,0 +1,3 @@
+13 Dec
+1. implement createProduct API with fakestore
+2. add headers in response of getProductById
