@@ -1,5 +1,6 @@
 package org.example.productcatalogservice_dec2024.services;
 
+import org.example.productcatalogservice_dec2024.clients.FakeStoreApiClient;
 import org.example.productcatalogservice_dec2024.dtos.FakeStoreProductDto;
 import org.example.productcatalogservice_dec2024.models.Category;
 import org.example.productcatalogservice_dec2024.models.Product;
@@ -19,11 +20,16 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO : Rearrange code to Client layer
+
 @Service
 public class FakeStoreProductService implements IProductService {
 
     @Autowired
     private RestTemplateBuilder restTemplateBuilder;
+
+    @Autowired
+    private FakeStoreApiClient fakeStoreApiClient;
 
 
 //    public FakeStoreProductService(RestTemplateBuilder restTemplateBuilder) {
@@ -31,18 +37,13 @@ public class FakeStoreProductService implements IProductService {
 //    }
 
     public Product getProductById(Long productId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        //restTemplateBuilder.rootUri("http://fakestoreapi.com/");
-        ResponseEntity<FakeStoreProductDto> fakeStoreProductDtoResponseEntity =
-                restTemplate.getForEntity("http://fakestoreapi.com/products/{productId}",
-                        FakeStoreProductDto.class,productId);
+        FakeStoreProductDto fakeStoreProductDto = fakeStoreApiClient.getProductById(productId);
 
-        if(fakeStoreProductDtoResponseEntity.getStatusCode().equals(HttpStatusCode.valueOf(200))
-                && fakeStoreProductDtoResponseEntity.getBody() != null) {
-            return from(fakeStoreProductDtoResponseEntity.getBody());
+        if(fakeStoreProductDto != null) {
+            return from(fakeStoreProductDto);
         }
 
-        return null;
+        return  null;
     }
 
     @Override
