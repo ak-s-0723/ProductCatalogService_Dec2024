@@ -2,11 +2,15 @@ package org.example.productcatalogservice_dec2024.controllers;
 
 import org.example.productcatalogservice_dec2024.dtos.CategoryDto;
 import org.example.productcatalogservice_dec2024.dtos.ProductDto;
+import org.example.productcatalogservice_dec2024.models.Category;
 import org.example.productcatalogservice_dec2024.models.Product;
 import org.example.productcatalogservice_dec2024.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -20,25 +24,30 @@ public class ProductController {
     private IProductService productService;
 
     @GetMapping
-    public List<Product> getAllProducts() {
-        Product product = new Product();
-        product.setId(2L);
-        product.setName("Iphone");
-        List<Product> products = new ArrayList<>();
-        products.add(product);
-        return  products;
+    public List<ProductDto> getAllProducts() {
+        List<ProductDto> productDtos = new ArrayList<>();
+        List<Product> products = productService.getAllProducts();
+        for(Product product  : products) {
+            productDtos.add(from(product));
+        }
+
+        return productDtos;
     }
 
 
     @GetMapping("{productId}")
     public ResponseEntity<ProductDto> findProductById(@PathVariable Long productId) {
+        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+
         if(productId <= 0) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            headers.add("called by","bhudwak");
+            return new ResponseEntity<>(null, headers, HttpStatus.NOT_FOUND);
         }
 
-      Product product = productService.getProductById(productId);
-      if(product == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-      return new ResponseEntity<>(from(product),HttpStatus.OK);
+        Product product = productService.getProductById(productId);
+        headers.add("called by","intelligent");
+      if(product == null) return new ResponseEntity<>(null, headers, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(from(product),headers, HttpStatus.OK);
     }
 
     private ProductDto from (Product product) {
@@ -58,8 +67,31 @@ public class ProductController {
         return productDto;
     }
 
+    //HW -: TO BE DONE BY LEARNERS
     @PostMapping
-    public Product createProduct(@RequestBody Product product) {
+    public ProductDto createProduct(@RequestBody ProductDto product) {
+       return null;
+    }
+
+    @PutMapping("/{id}")
+    public ProductDto replaceProduct(@PathVariable Long id,@RequestBody ProductDto request) {
+     Product productRequest = from(request);
+     Product product  = productService.replaceProduct(id,productRequest);
+     return  from(product);
+    }
+
+    private Product from(ProductDto productDto) {
+        Product product = new Product();
+        product.setId(productDto.getId());
+        product.setName(productDto.getName());
+        product.setPrice(productDto.getPrice());
+        product.setImageUrl(productDto.getImageUrl());
+        product.setDescription(productDto.getDescription());
+        if(productDto.getCategory() != null) {
+            Category category = new Category();
+            category.setName(productDto.getCategory().getName());
+            product.setCategory(category);
+        }
         return product;
     }
 
