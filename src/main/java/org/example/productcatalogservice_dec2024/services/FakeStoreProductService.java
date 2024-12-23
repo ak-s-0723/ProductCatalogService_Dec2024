@@ -22,7 +22,7 @@ import java.util.List;
 
 //TODO : Rearrange code to Client layer
 
-@Service
+@Service("fkps")
 public class FakeStoreProductService implements IProductService {
 
     @Autowired
@@ -69,6 +69,12 @@ public class FakeStoreProductService implements IProductService {
                 requestForEntity("http://fakestoreapi.com/products/{productId}",HttpMethod.PUT,fakeStoreProductDtoRequest, FakeStoreProductDto.class,productId).getBody();
 
         return from(response);
+    }
+
+    //ToDo: To be done by learners
+    @Override
+    public Product save(Product product) {
+        return null;
     }
 
     private <T> ResponseEntity<T> requestForEntity(String url, HttpMethod httpMethod, @Nullable Object request, Class<T> responseType, Object... uriVariables) throws RestClientException {

@@ -4,6 +4,7 @@ import org.example.productcatalogservice_dec2024.dtos.CategoryDto;
 import org.example.productcatalogservice_dec2024.dtos.ProductDto;
 import org.example.productcatalogservice_dec2024.models.Category;
 import org.example.productcatalogservice_dec2024.models.Product;
+import org.example.productcatalogservice_dec2024.models.State;
 import org.example.productcatalogservice_dec2024.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,6 +15,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -21,12 +23,17 @@ import java.util.List;
 public class ProductController {
 
     @Autowired
-    private IProductService productService;
+    @Qualifier("fkps")
+    private IProductService productService1;
+
+    @Autowired
+    @Qualifier("sps")
+    private IProductService productService2;
 
     @GetMapping
     public List<ProductDto> getAllProducts() {
         List<ProductDto> productDtos = new ArrayList<>();
-        List<Product> products = productService.getAllProducts();
+        List<Product> products = productService2.getAllProducts();
         for(Product product  : products) {
             productDtos.add(from(product));
         }
@@ -46,7 +53,7 @@ public class ProductController {
                 throw new IllegalArgumentException("Please try with productId > 0");
             }
 
-            Product product = productService.getProductById(productId);
+            Product product = productService2.getProductById(productId);
             headers.add("called by", "intelligent");
             if (product == null) return new ResponseEntity<>(null, headers, HttpStatus.BAD_REQUEST);
             return new ResponseEntity<>(from(product), headers, HttpStatus.OK);
@@ -74,19 +81,25 @@ public class ProductController {
 
     //HW -: TO BE DONE BY LEARNERS
     @PostMapping
-    public ProductDto createProduct(@RequestBody ProductDto product) {
-       return null;
+    public ProductDto createProduct(@RequestBody ProductDto productDto) {
+       Product input = from(productDto);
+       Product output = productService2.save(input);
+       return from(output);
+
     }
 
     @PutMapping("/{id}")
     public ProductDto replaceProduct(@PathVariable Long id,@RequestBody ProductDto request) {
      Product productRequest = from(request);
-     Product product  = productService.replaceProduct(id,productRequest);
+     Product product  = productService1.replaceProduct(id,productRequest);
      return  from(product);
     }
 
     private Product from(ProductDto productDto) {
         Product product = new Product();
+//        product.setCreatedAt(new Date());
+//        product.setLastUpdatedAt(new Date());
+//        product.setState(State.ACTIVE);
         product.setId(productDto.getId());
         product.setName(productDto.getName());
         product.setPrice(productDto.getPrice());
@@ -94,6 +107,7 @@ public class ProductController {
         product.setDescription(productDto.getDescription());
         if(productDto.getCategory() != null) {
             Category category = new Category();
+            category.setId(productDto.getCategory().getId());
             category.setName(productDto.getCategory().getName());
             product.setCategory(category);
         }
