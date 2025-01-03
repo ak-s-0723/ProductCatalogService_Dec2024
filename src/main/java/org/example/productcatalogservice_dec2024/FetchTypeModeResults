@@ -1,0 +1,22 @@
+FetchType        FetchMode          Result
+LAZY             SELECT             Asked For Products - Queries - 2 select
+                                    Not Asked For Products - Queries - 1 select
+
+EAGER            SELECT             Asked For Products - Queries - 2 select
+                                    Not Asked For Products - Queries - 2 select
+
+LAZY             JOIN               Asked For Products - Queries - 1 join
+                                    Not Asked For Products - Queries - 1 join
+
+EAGER            JOIN               Asked For Products - Queries - 1 join
+                                    Not Asked For Products - Queries - 1 join
+
+LAZY             SUBSELECT           Asked For Products - Queries - 2 select
+                                     Not Asked For Products - Queries - 1 select
+
+EAGER            SUBSELECT          Asked For Products - Queries - 2 select
+                                    Not Asked For Products - Queries - 2 select
+
+Fetchmode JOIN is domainant on both fetchTypes
+
+FetchType will be honored in case of FetchMode Select and Subselect

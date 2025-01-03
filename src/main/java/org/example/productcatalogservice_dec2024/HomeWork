@@ -1,3 +1,10 @@
 13 Dec
 1. implement createProduct API with fakestore
 2. add headers in response of getProductById
+
+03 Jan
+Read
+https://hackernoon.com/3-ways-to-deal-with-hibernate-n1-problem
+https://dheerajgopinath.medium.com/the-issue-with-fetchmode-subselect-and-onetomany-mappings-in-hibernate-and-jpa-f79724068897
+https://itecnote.com/tecnote/hibernate-subselect-vs-batch-fetching/
+https://www.baeldung.com/hibernate-fetchmode
