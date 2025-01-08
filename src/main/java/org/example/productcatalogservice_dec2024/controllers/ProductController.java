@@ -22,12 +22,13 @@ import java.util.List;
 @RequestMapping("/products")
 public class ProductController {
 
-    @Autowired
-    @Qualifier("fkps")
-    private IProductService productService1;
+//For Displaying use of Qualifier
+//    @Autowired
+//    @Qualifier("fkps")
+//    private IProductService productService1;
 
     @Autowired
-    @Qualifier("sps")
+    //@Qualifier("sps")
     private IProductService productService2;
 
     @GetMapping
@@ -47,10 +48,12 @@ public class ProductController {
         try {
             MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 
-            if (productId <= 0) {
+            if (productId < 0) {
                 headers.add("called by", "bhudwak");
                 //return new ResponseEntity<>(null, headers, HttpStatus.NOT_FOUND);
                 throw new IllegalArgumentException("Please try with productId > 0");
+            } else if(productId == 0) {
+                throw new IllegalArgumentException("No No !!");
             }
 
             Product product = productService2.getProductById(productId);
@@ -91,7 +94,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ProductDto replaceProduct(@PathVariable Long id,@RequestBody ProductDto request) {
      Product productRequest = from(request);
-     Product product  = productService1.replaceProduct(id,productRequest);
+     Product product  = productService2.replaceProduct(id,productRequest);
      return  from(product);
     }
 
