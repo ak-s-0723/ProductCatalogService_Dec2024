@@ -7,6 +7,7 @@ import org.example.productcatalogservice_dec2024.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import java.util.List;
 //TODO : Rearrange code to Client layer
 
 @Service("fkps")
+@Primary
 public class FakeStoreProductService implements IProductService {
 
     @Autowired
@@ -31,19 +33,34 @@ public class FakeStoreProductService implements IProductService {
     @Autowired
     private FakeStoreApiClient fakeStoreApiClient;
 
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
+
 
 //    public FakeStoreProductService(RestTemplateBuilder restTemplateBuilder) {
 //        this.restTemplateBuilder = restTemplateBuilder;
 //    }
 
     public Product getProductById(Long productId) {
-        FakeStoreProductDto fakeStoreProductDto = fakeStoreApiClient.getProductById(productId);
+        //if (found in redis)
+        //   return
+        //else
+        //   call fakestore
+        //   cache it
+        //   return it
+        FakeStoreProductDto fakeStoreProductDto = null;
 
-        if(fakeStoreProductDto != null) {
-            return from(fakeStoreProductDto);
+        fakeStoreProductDto = (FakeStoreProductDto) redisTemplate.opsForHash().get("products",productId);
+
+        if(fakeStoreProductDto == null) {
+            System.out.println("got from fakestore");
+            fakeStoreProductDto = fakeStoreApiClient.getProductById(productId);
+            redisTemplate.opsForHash().put("products",productId,fakeStoreProductDto);
+        } else {
+            System.out.println("got from redis");
         }
 
-        return  null;
+        return from(fakeStoreProductDto);
     }
 
     @Override
